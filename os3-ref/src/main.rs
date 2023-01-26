@@ -54,11 +54,30 @@ fn clear_bss() {
     }
 }
 
+extern "C" {
+    fn stext();
+    fn etext();
+    fn srodata();
+    fn erodata();
+    fn sdata();
+    fn edata();
+    fn sbss();
+    fn ebss();
+    fn ekernel();
+    fn boot_stack();
+    fn boot_stack_top();
+}
+
 #[no_mangle]
 /// the rust entry-point of os
 pub fn rust_main() -> ! {
     clear_bss();
     logging::init();
+    println!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
+    println!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
+    println!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
+    println!(".bss [{:#x}, {:#x})", sbss as usize, ebss as usize);
+    println!("stack: [{:#x}, {:#x})", boot_stack as usize, boot_stack_top as usize);
     println!("[kernel] Hello, world!");
     heap_alloc::init_heap();
     trap::init();

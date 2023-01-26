@@ -53,6 +53,7 @@ struct TaskManagerInner {
 lazy_static! {
     /// a `TaskManager` instance through lazy_static!
     pub static ref TASK_MANAGER: TaskManager = {
+        println!("TASK_MANAGER initializing");
         let num_app = get_num_app();
         let mut tasks = [TaskControlBlock {
             task_cx: TaskContext::zero_init(),
@@ -60,19 +61,25 @@ lazy_static! {
             init_time: 0,
             syscall_times: [0; MAX_SYSCALL_NUM],
         }; MAX_APP_NUM];
+        println!("task block size: {}", core::mem::size_of_val(&tasks));
+        println!("tasks prepared, all UnInit");
         for (i, t) in tasks.iter_mut().enumerate().take(num_app) {
+            println!("task #{} gets ready", i);
             t.task_cx = TaskContext::goto_restore(init_app_cx(i));
             t.task_status = TaskStatus::Ready;
         }
-        TaskManager {
+        println!("tasks initialized, build TASK_MANAGER");
+        let inner = unsafe { UPSafeCell::new(TaskManagerInner {
+            tasks,
+            current_task: 0,
+        })};
+        println!("TASK_MANAGER inner built");
+        let task_manager = TaskManager {
             num_app,
-            inner: unsafe {
-                UPSafeCell::new(TaskManagerInner {
-                    tasks,
-                    current_task: 0,
-                })
-            },
-        }
+            inner,
+        };
+        println!("TASK_MANAGER built, return");
+        task_manager
     };
 }
 
@@ -82,6 +89,7 @@ impl TaskManager {
     /// Generally, the first task in task list is an idle task (we call it zero process later).
     /// But in ch3, we load apps statically, so the first task is a real app.
     fn run_first_task(&self) -> ! {
+        println!("TaskManager::run_first_task start");
         let mut inner = self.inner.exclusive_access();
         let task0 = &mut inner.tasks[0];
         task0.task_status = TaskStatus::Running;
@@ -165,6 +173,7 @@ impl TaskManager {
 
 /// Run the first task in task list.
 pub fn run_first_task() {
+    println!("run_first_task start");
     TASK_MANAGER.run_first_task();
 }
 
