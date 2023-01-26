@@ -1,16 +1,17 @@
 //! Types related to task management
 
-use crate::config::MAX_SYSCALL_NUM;
+use alloc::collections::BTreeMap;
+
 use super::TaskContext;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 /// task control block structure
 pub struct TaskControlBlock {
     pub task_status: TaskStatus,
     pub task_cx: TaskContext,
     // LAB1: Add whatever you need about the Task.
+    pub syscall_times: BTreeMap<u16, u32>,
     pub init_time: usize,
-    pub syscall_times: [u32; MAX_SYSCALL_NUM],
 }
 
 #[derive(Copy, Clone, PartialEq)]

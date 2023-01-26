@@ -37,7 +37,6 @@ pub fn sys_get_time(ts: *mut TimeVal, _tz: usize) -> isize {
 
 /// YOUR JOB: Finish sys_task_info to pass testcases
 pub fn sys_task_info(ti: *mut TaskInfo) -> isize {
-    return -1;
     unsafe {
         *ti = get_current_task_info();
     }

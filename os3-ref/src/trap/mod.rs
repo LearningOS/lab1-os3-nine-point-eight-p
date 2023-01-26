@@ -49,7 +49,7 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
     let stval = stval::read(); // get extra value
     match scause.cause() {
         Trap::Exception(Exception::UserEnvCall) => {
-            increase_syscall_count(cx.x[17]);
+            increase_syscall_count(cx.x[17] as u16);
             cx.sepc += 4;
             cx.x[10] = syscall(cx.x[17], [cx.x[10], cx.x[11], cx.x[12]]) as usize;
         }
